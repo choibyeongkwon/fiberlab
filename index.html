@@ -277,20 +277,24 @@
         
         .publication-authors {
             color: #7f8c8d;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             font-size: 0.95rem;
         }
         
-        .publication-journal {
+        .publication-info {
             color: #34495e;
-            font-style: italic;
-            margin-bottom: 4px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            margin-bottom: 0;
         }
         
-        .publication-year {
-            color: #95a5a6;
-            font-size: 0.85rem;
+        .publication-info a {
+            color: #3498db !important;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .publication-info a:hover {
+            text-decoration: underline;
         }
         
         .loading {
@@ -393,7 +397,7 @@
                         <tr>
                             <th>이름</th>
                             <th>학번</th>
-                            <th>학위</th>
+                            <th>졸업년도</th>
                             <th>회사명</th>
                             <th>이메일</th>
                         </tr>
@@ -431,6 +435,7 @@
         
         // 논문 구글 시트 CSV URL (비워두면 기본 데이터 사용)
         const PUBLICATION_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQt9yKSVeSMovmXnkf1NyymK2F-iZH5gP1DtAv6SHoctUSYJv0RifmBqgWp6oBt8rhsscgqlX212TKM/pub?gid=0&single=true&output=csv';
+
         
         // ========================================
         // 구글 시트 URL 설정 방법:
@@ -729,25 +734,64 @@
             console.log(`=== 총 ${addedCount}개 행이 테이블에 추가됨 ===`);
         }
         
-        // 논문 데이터 표시 (빈칸 허용)
+        // 논문 데이터 표시 (빈칸 허용, DOI 포함)
         function displayPublicationData(rows) {
+            console.log('=== displayPublicationData 시작 ===');
+            console.log('받은 rows:', rows);
+            
             const container = document.getElementById('publicationContainer');
             container.innerHTML = '';
             
-            rows.forEach(row => {
+            let addedCount = 0;
+            
+            rows.forEach((row, index) => {
+                console.log(`논문 행 ${index} 검사:`, row);
+                
                 // 최소 1개의 컬럼이 있고, 모든 컬럼이 빈 것이 아닌 경우
-                if (row.length >= 1 && row.some(col => col && col.trim() !== '')) {
+                const hasContent = row.length >= 1 && row.some(col => col && col.trim() !== '');
+                console.log(`논문 행 ${index} 유효성:`, hasContent, '(길이:', row.length, ')');
+                
+                if (hasContent) {
                     const div = document.createElement('div');
                     div.className = 'publication-item';
+                    
+                    // 저널, 년도, DOI를 한 줄로 구성
+                    let journalInfo = '';
+                    const journal = escapeHtml(row[2] || '');
+                    const year = escapeHtml(row[3] || '');
+                    const doi = escapeHtml(row[4] || '');
+                    
+                    // 저널 정보 구성
+                    const journalParts = [];
+                    if (journal) journalParts.push(journal);
+                    if (year) journalParts.push(`(${year})`);
+                    
+                    // DOI 링크 처리
+                    if (doi) {
+                        let doiLink = doi;
+                        // DOI가 이미 URL이 아니라면 DOI URL로 변환
+                        if (!doi.startsWith('http')) {
+                            doiLink = doi.startsWith('10.') ? `https://doi.org/${doi}` : `https://doi.org/${doi}`;
+                        }
+                        journalParts.push(`<a href="${doiLink}" target="_blank" style="color: #3498db; text-decoration: none;">DOI</a>`);
+                    }
+                    
+                    journalInfo = journalParts.join(' • ');
+                    
                     div.innerHTML = `
                         <div class="publication-title">${escapeHtml(row[0] || '')}</div>
                         <div class="publication-authors">${escapeHtml(row[1] || '')}</div>
-                        <div class="publication-journal">${escapeHtml(row[2] || '')}</div>
-                        <div class="publication-year">${escapeHtml(row[3] || '')}</div>
+                        <div class="publication-info">${journalInfo}</div>
                     `;
                     container.appendChild(div);
+                    addedCount++;
+                    console.log(`✓ 논문 행 ${index} 추가됨. 제목: "${row[0]}"`);
+                } else {
+                    console.log(`✗ 논문 행 ${index} 제외됨`);
                 }
             });
+            
+            console.log(`=== 총 ${addedCount}개 논문이 추가됨 ===`);
         }
         
         // HTML 특수문자 이스케이프 함수 (느낌표 및 기타 특수문자 포함)
@@ -777,21 +821,13 @@
         
         // 기본 논문 데이터 로드
         function loadDefaultPublicationData() {
-            const container = document.getElementById('publicationContainer');
-            container.innerHTML = `
-                <div class="publication-item">
-                    <div class="publication-title">Advanced Machine Learning Approaches for Semiconductor Process Optimization</div>
-                    <div class="publication-authors">김철수, 이영희, 박민수</div>
-                    <div class="publication-journal">IEEE Transactions on Semiconductor Manufacturing</div>
-                    <div class="publication-year">2024</div>
-                </div>
-                <div class="publication-item">
-                    <div class="publication-title">Deep Learning Based Quality Control in Manufacturing Systems</div>
-                    <div class="publication-authors">최지영, 김철수</div>
-                    <div class="publication-journal">Journal of Manufacturing Science and Engineering</div>
-                    <div class="publication-year">2023</div>
-                </div>
-            `;
+            // Sample publication data with DOI
+            const defaultData = [
+                ['Advanced Machine Learning Approaches for Semiconductor Process Optimization', '김철수, 이영희, 박민수', 'IEEE Transactions on Semiconductor Manufacturing', '2024', 'https://doi.org/10.1109/TSM.2024.1234567'],
+                ['Deep Learning Based Quality Control in Manufacturing Systems', '최지영, 김철수', 'Journal of Manufacturing Science and Engineering', '2023', 'https://doi.org/10.1115/1.4062345']
+            ];
+            
+            displayPublicationData(defaultData);
         }
     </script>
 </body>
