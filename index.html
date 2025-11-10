@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대학원 졸업생 연락처</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            margin: 0;
+        }
+        
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 50px;
+            background: white;
+            border-radius: 50px;
+            padding: 5px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 50px;
+        }
+        
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 45px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #7f8c8d;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.active {
+            background: #3498db;
+            color: white;
+            box-shadow: 0 4px 15px rgba(52,152,219,0.3);
+        }
+        
+        .nav-item:hover:not(.active) {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+        
+        /* Section */
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Notice Section */
+        .notice {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 4px solid #3498db;
+        }
+        
+        .notice h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .notice-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .notice-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #ecf0f1;
+            color: #34495e;
+            font-size: 1.1rem;
+        }
+        
+        .notice-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .notice-list li:before {
+            content: "•";
+            color: #3498db;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        /* Photo Section */
+        .photo-section {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .photo-section h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .main-photo {
+            display: inline-block;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+        
+        .main-photo:hover {
+            transform: scale(1.02);
+        }
+        
+        .main-photo img {
+            width: 100%;
+            max-width: 500px;
+            height: 350px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        /* Contact Section */
+        .contact-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .contact-section h2 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .contact-info {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .contact-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .contact-table th {
+            background: #34495e;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .contact-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #ecf0f1;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+        
+        .contact-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .contact-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Publication Section */
+        .publication-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .publication-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .publication-item {
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-left: 4px solid #3498db;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .publication-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .publication-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        
+        .publication-authors {
+            color: #7f8c8d;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+        
+        .publication-journal {
+            color: #34495e;
+            font-style: italic;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+        
+        .publication-year {
+            color: #95a5a6;
+            font-size: 0.85rem;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            padding: 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .nav {
+                flex-direction: column;
+                border-radius: 16px;
+                max-width: 300px;
+            }
+            
+            .nav-item {
+                border-radius: 12px;
+                margin-bottom: 5px;
+            }
+            
+            .contact-table {
+                font-size: 0.9rem;
+            }
+            
+            .contact-table th,
+            .contact-table td {
+                padding: 12px 8px;
+            }
+            
+            .notice,
+            .photo-section,
+            .contact-section,
+            .publication-section {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Graduate Alumni</h1>
+            <p>연구실 졸업생 연락처 및 정보</p>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="nav">
+            <button class="nav-item active" onclick="showSection('notice')">Notice</button>
+            <button class="nav-item" onclick="showSection('photo')">Photo</button>
+            <button class="nav-item" onclick="showSection('contact')">Contact</button>
+            <button class="nav-item" onclick="showSection('publication')">Publications</button>
+        </div>
+        
+        <!-- Notice Section -->
+        <div id="notice" class="section active">
+            <div class="notice">
+                <h2>📢 공지사항</h2>
+                <ul class="notice-list">
+                    <li>졸업생 여러분의 근황을 공유해주세요</li>
+                    <li>연락처 정보 업데이트는 언제든지 가능합니다</li>
+                    <li>문의사항은 관리자에게 연락바랍니다</li>
+                    <li>정기적인 졸업생 모임을 계획하고 있습니다</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Photo Section -->
+        <div id="photo" class="section">
+            <div class="photo-section">
+                <h2>📸 Graduate Photo</h2>
+                <div class="main-photo">
+                    <img src="https://via.placeholder.com/500x350/3498db/ffffff?text=Graduate+Group+Photo" alt="Graduate Group Photo">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Section -->
+        <div id="contact" class="section">
+            <div class="contact-section">
+                <h2>Contact</h2>
+                <div class="contact-info">핸드폰 정보는 제공되지 않습니다. 문의: 최병권</div>
+                
+                <div id="contactLoading" class="loading" style="display: none;">
+                    구글 시트에서 연락처 정보를 불러오는 중...
+                </div>
+                
+                <table class="contact-table" id="contactTable">
+                    <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>학번</th>
+                            <th>학위</th>
+                            <th>회사명</th>
+                            <th>이메일</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contactTableBody">
+                        <!-- 구글 시트에서 데이터가 로드됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Publications Section -->
+        <div id="publication" class="section">
+            <div class="publication-section">
+                <h2>Paper</h2>
+                
+                <div id="publicationLoading" class="loading" style="display: none;">
+                    구글 시트에서 논문 정보를 불러오는 중...
+                </div>
+                
+                <div id="publicationContainer">
+                    <!-- 구글 시트에서 데이터가 로드됩니다 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ========================================
+        // 구글 시트 URL 설정 (여기서 직접 수정하세요!)
+        // ========================================
+        
+        // 연락처 구글 시트 CSV URL (비워두면 기본 데이터 사용)
+        const CONTACT_SHEET_URL = '';
+        
+        // 논문 구글 시트 CSV URL (비워두면 기본 데이터 사용)
+        const PUBLICATION_SHEET_URL = '';
+        
+        // ========================================
+        // 구글 시트 URL 설정 방법:
+        // 1. 구글 시트에서 "파일 > 공유 > 웹에 게시" 선택
+        // 2. 형식을 "CSV"로 선택하고 게시
+        // 3. 생성된 CSV 링크를 위의 변수에 입력
+        // 
+        // 예시:
+        // const CONTACT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=0';
+        // ========================================
+        
+        // 페이지 로드 시 데이터 로드
+        window.onload = function() {
+            if (CONTACT_SHEET_URL) {
+                loadContactData();
+            } else {
+                loadDefaultContactData();
+            }
+            
+            if (PUBLICATION_SHEET_URL) {
+                loadPublicationData();
+            } else {
+                loadDefaultPublicationData();
+            }
+        };
+        
+        // 섹션 전환 기능
+        function showSection(sectionName) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.getElementById(sectionName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // 연락처 데이터 로드
+        function loadContactData() {
+            if (!CONTACT_SHEET_URL) return;
+            
+            const loading = document.getElementById('contactLoading');
+            const tableBody = document.getElementById('contactTableBody');
+            
+            loading.style.display = 'block';
+            
+            // 여러 CORS 프록시 시도
+            const proxies = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url=',
+                'https://cors-anywhere.herokuapp.com/',
+                ''  // 직접 접근
+            ];
+            
+            let proxyIndex = 0;
+            
+            function tryNextProxy() {
+                if (proxyIndex >= proxies.length) {
+                    console.error('모든 프록시 실패');
+                    loading.innerHTML = `
+                        <div style="color: #e74c3c; text-align: center; padding: 20px;">
+                            <h3>⚠️ 데이터를 불러올 수 없습니다</h3>
+                            <p>로컬 파일에서 실행 중입니다. 다음 방법을 시도해보세요:</p>
+                            <ol style="text-align: left; display: inline-block;">
+                                <li>웹 서버에 파일 업로드</li>
+                                <li>로컬 웹 서버 실행 (Live Server 확장 등)</li>
+                                <li>브라우저 CORS 보안 해제</li>
+                            </ol>
+                            <p>현재 기본 데이터를 표시합니다.</p>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                        loadDefaultContactData();
+                    }, 5000);
+                    return;
+                }
+                
+                const proxy = proxies[proxyIndex];
+                const url = proxy + encodeURIComponent(CONTACT_SHEET_URL);
+                
+                console.log(`프록시 ${proxyIndex + 1} 시도:`, url);
+                
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        console.log('Raw CSV data:', data.substring(0, 500) + '...');
+                        const rows = parseCSV(data);
+                        console.log('Parsed contact rows:', rows);
+                        displayContactData(rows);
+                        loading.style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error(`프록시 ${proxyIndex + 1} 실패:`, error);
+                        proxyIndex++;
+                        tryNextProxy();
+                    });
+            }
+            
+            tryNextProxy();
+        }
+        
+        // 논문 데이터 로드
+        function loadPublicationData() {
+            if (!PUBLICATION_SHEET_URL) return;
+            
+            const loading = document.getElementById('publicationLoading');
+            const container = document.getElementById('publicationContainer');
+            
+            loading.style.display = 'block';
+            
+            // 여러 CORS 프록시 시도
+            const proxies = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url=',
+                'https://cors-anywhere.herokuapp.com/',
+                ''  // 직접 접근
+            ];
+            
+            let proxyIndex = 0;
+            
+            function tryNextProxy() {
+                if (proxyIndex >= proxies.length) {
+                    console.error('모든 프록시 실패');
+                    loading.innerHTML = `
+                        <div style="color: #e74c3c; text-align: center; padding: 20px;">
+                            <h3>⚠️ 논문 데이터를 불러올 수 없습니다</h3>
+                            <p>현재 기본 데이터를 표시합니다.</p>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                        loadDefaultPublicationData();
+                    }, 3000);
+                    return;
+                }
+                
+                const proxy = proxies[proxyIndex];
+                const url = proxy + encodeURIComponent(PUBLICATION_SHEET_URL);
+                
+                console.log(`논문 프록시 ${proxyIndex + 1} 시도:`, url);
+                
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        console.log('Raw publication CSV data:', data.substring(0, 500) + '...');
+                        const rows = parseCSV(data);
+                        console.log('Parsed publication rows:', rows);
+                        displayPublicationData(rows);
+                        loading.style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error(`논문 프록시 ${proxyIndex + 1} 실패:`, error);
+                        proxyIndex++;
+                        tryNextProxy();
+                    });
+            }
+            
+            tryNextProxy();
+        }
+        
+        // 향상된 CSV 파싱 함수 (모든 특수문자 지원)
+        function parseCSV(text) {
+            console.log('=== CSV 파싱 시작 ===');
+            const rows = text.split('\n');
+            const result = [];
+            
+            console.log('총 행 수:', rows.length);
+            
+            for (let i = 1; i < rows.length; i++) { // 헤더 제외
+                const row = rows[i].trim();
+                console.log(`행 ${i}:`, row);
+                
+                if (row && row.length > 0) {
+                    const cols = parseCSVRow(row);
+                    console.log(`파싱된 컬럼들:`, cols);
+                    
+                    // 빈 행이 아닌 경우에만 추가
+                    if (cols.length > 0 && cols.some(col => col && col.trim() !== '')) {
+                        result.push(cols);
+                        console.log(`✓ 행 ${i} 추가됨:`, cols);
+                    } else {
+                        console.log(`✗ 행 ${i} 제외됨 (빈 행):`, cols);
+                    }
+                } else {
+                    console.log(`✗ 행 ${i} 제외됨 (빈 문자열)`);
+                }
+            }
+            
+            console.log('=== 최종 결과 ===', result);
+            return result;
+        }
+        
+        // 강화된 CSV 행 파싱 (모든 특수문자, 유니코드 지원)
+        function parseCSVRow(row) {
+            const cols = [];
+            let current = '';
+            let inQuotes = false;
+            let i = 0;
+            
+            // 빈 행 처리
+            if (!row || row.trim() === '') {
+                console.log('빈 행 감지');
+                return [];
+            }
+            
+            console.log('파싱할 행:', row);
+            
+            while (i < row.length) {
+                const char = row[i];
+                const nextChar = row[i + 1];
+                
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        // 연속된 따옴표는 하나의 따옴표로 처리
+                        current += '"';
+                        i += 2;
+                        continue;
+                    } else {
+                        // 따옴표 시작/끝
+                        inQuotes = !inQuotes;
+                        console.log(`따옴표 ${inQuotes ? '시작' : '끝'} at position ${i}`);
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    // 따옴표 밖의 쉼표는 구분자
+                    cols.push(current);
+                    console.log(`컬럼 추가: "${current}"`);
+                    current = '';
+                } else {
+                    // 모든 문자(특수문자, 유니코드 포함)를 그대로 추가
+                    current += char;
+                }
+                i++;
+            }
+            
+            // 마지막 컬럼 추가
+            cols.push(current);
+            console.log(`마지막 컬럼 추가: "${current}"`);
+            
+            // 각 컬럼의 앞뒤 공백만 제거 (내용은 보존)
+            const result = cols.map(col => col ? col.trim() : '');
+            console.log('trim 후 결과:', result);
+            
+            return result;
+        }
+        
+        // 연락처 데이터 표시 (빈칸 허용)
+        function displayContactData(rows) {
+            console.log('=== displayContactData 시작 ===');
+            console.log('받은 rows:', rows);
+            
+            const tableBody = document.getElementById('contactTableBody');
+            tableBody.innerHTML = '';
+            
+            let addedCount = 0;
+            
+            rows.forEach((row, index) => {
+                console.log(`행 ${index} 검사:`, row);
+                
+                // 최소 1개의 컬럼이 있고, 모든 컬럼이 빈 것이 아닌 경우
+                const hasContent = row.length >= 1 && row.some(col => col && col.trim() !== '');
+                console.log(`행 ${index} 유효성:`, hasContent, '(길이:', row.length, ', 내용 있음:', row.some(col => col && col.trim() !== ''), ')');
+                
+                if (hasContent) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${escapeHtml(row[0] || '')}</td>
+                        <td>${escapeHtml(row[1] || '')}</td>
+                        <td>${escapeHtml(row[2] || '')}</td>
+                        <td>${escapeHtml(row[3] || '')}</td>
+                        <td>${escapeHtml(row[4] || '')}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                    addedCount++;
+                    console.log(`✓ 행 ${index} 테이블에 추가됨. 이름: "${row[0]}"`);
+                } else {
+                    console.log(`✗ 행 ${index} 제외됨`);
+                }
+            });
+            
+            console.log(`=== 총 ${addedCount}개 행이 테이블에 추가됨 ===`);
+        }
+        
+        // 논문 데이터 표시 (빈칸 허용)
+        function displayPublicationData(rows) {
+            const container = document.getElementById('publicationContainer');
+            container.innerHTML = '';
+            
+            rows.forEach(row => {
+                // 최소 1개의 컬럼이 있고, 모든 컬럼이 빈 것이 아닌 경우
+                if (row.length >= 1 && row.some(col => col && col.trim() !== '')) {
+                    const div = document.createElement('div');
+                    div.className = 'publication-item';
+                    div.innerHTML = `
+                        <div class="publication-title">${escapeHtml(row[0] || '')}</div>
+                        <div class="publication-authors">${escapeHtml(row[1] || '')}</div>
+                        <div class="publication-journal">${escapeHtml(row[2] || '')}</div>
+                        <div class="publication-year">${escapeHtml(row[3] || '')}</div>
+                    `;
+                    container.appendChild(div);
+                }
+            });
+        }
+        
+        // HTML 특수문자 이스케이프 함수 (느낌표 및 기타 특수문자 포함)
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            // 기본 HTML 특수문자만 이스케이프하고, 느낌표 등은 그대로 유지
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+        
+        // 기본 연락처 데이터 로드
+        function loadDefaultContactData() {
+            const defaultData = [
+                ['김철수', '2020123456', '공학박사', '삼성전자', 'kim@samsung.com'],
+                ['이영희', '2019987654', '공학석사', 'LG화학', 'lee@lgchem.com'],
+                ['박민수', '2018555666', '공학박사', 'SK하이닉스', 'park@skhynix.com'],
+                ['최지영', '2021777888', '공학석사', '네이버', 'choi@naver.com']
+            ];
+            displayContactData(defaultData);
+        }
+        
+        // 기본 논문 데이터 로드
+        function loadDefaultPublicationData() {
+            const container = document.getElementById('publicationContainer');
+            container.innerHTML = `
+                <div class="publication-item">
+                    <div class="publication-title">Advanced Machine Learning Approaches for Semiconductor Process Optimization</div>
+                    <div class="publication-authors">김철수, 이영희, 박민수</div>
+                    <div class="publication-journal">IEEE Transactions on Semiconductor Manufacturing</div>
+                    <div class="publication-year">2024</div>
+                </div>
+                <div class="publication-item">
+                    <div class="publication-title">Deep Learning Based Quality Control in Manufacturing Systems</div>
+                    <div class="publication-authors">최지영, 김철수</div>
+                    <div class="publication-journal">Journal of Manufacturing Science and Engineering</div>
+                    <div class="publication-year">2023</div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
