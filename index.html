@@ -433,6 +433,10 @@
         // 논문 구글 시트 CSV URL (비워두면 기본 데이터 사용)
         const PUBLICATION_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQt9yKSVeSMovmXnkf1NyymK2F-iZH5gP1DtAv6SHoctUSYJv0RifmBqgWp6oBt8rhsscgqlX212TKM/pub?gid=0&single=true&output=csv';
 
+        // 데이터 로드 상태 플래그
+        let contactDataLoaded = false;
+        let publicationDataLoaded = false;
+
         
         // ========================================
         // 구글 시트 URL 설정 방법:
@@ -444,20 +448,37 @@
         // const CONTACT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=0';
         // ========================================
         
-        // 페이지 로드 시 데이터 로드
-        window.onload = function() {
+        // 페이지 로드 시 데이터 로드 (모든 섹션의 데이터를 미리 로드)
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== DOMContentLoaded 시작 ===');
+            
+            // Contact 데이터 미리 로드 (Contact가 초기에 active이므로)
+            console.log('Contact 데이터 로드 중...');
             if (CONTACT_SHEET_URL) {
                 loadContactData();
             } else {
+                console.log('Contact URL이 없으므로 기본 데이터 사용');
                 loadDefaultContactData();
             }
             
+            // Publication 데이터 미리 로드
+            console.log('Publication 데이터 로드 중...');
             if (PUBLICATION_SHEET_URL) {
                 loadPublicationData();
             } else {
+                console.log('Publication URL이 없으므로 기본 데이터 사용');
                 loadDefaultPublicationData();
             }
-        };
+            
+            console.log('=== DOMContentLoaded 완료 ===');
+        });
+        
+        // 페이지 완전히 로드된 후 재확인
+        window.addEventListener('load', function() {
+            console.log('=== window load 이벤트 ===');
+            console.log('Contact 테이블 행 수:', document.querySelectorAll('#contactTableBody tr').length);
+            console.log('Publication 항목 수:', document.querySelectorAll('.publication-item').length);
+        });
         
         // 섹션 전환 기능
         function showSection(sectionName) {
@@ -477,12 +498,25 @@
         
         // 연락처 데이터 로드
         function loadContactData() {
-            if (!CONTACT_SHEET_URL) return;
+            // 이미 로드되었으면 중복 로드 방지
+            if (contactDataLoaded) {
+                console.log('Contact 데이터는 이미 로드되었습니다.');
+                return;
+            }
             
+            if (!CONTACT_SHEET_URL) {
+                console.log('CONTACT_SHEET_URL이 비어있습니다.');
+                loadDefaultContactData();
+                contactDataLoaded = true;
+                return;
+            }
+            
+            contactDataLoaded = true;  // 로드 시작 시 플래그 설정
             const loading = document.getElementById('contactLoading');
             const tableBody = document.getElementById('contactTableBody');
             
             loading.style.display = 'block';
+            console.log('Contact 데이터 로드 시작...');
             
             // 여러 CORS 프록시 시도
             const proxies = [
@@ -496,32 +530,31 @@
             
             function tryNextProxy() {
                 if (proxyIndex >= proxies.length) {
-                    console.error('모든 프록시 실패');
+                    console.error('모든 프록시 실패 - 기본 데이터 사용');
                     loading.innerHTML = `
                         <div style="color: #e74c3c; text-align: center; padding: 20px;">
                             <h3>⚠️ 데이터를 불러올 수 없습니다</h3>
-                            <p>로컬 파일에서 실행 중입니다. 다음 방법을 시도해보세요:</p>
-                            <ol style="text-align: left; display: inline-block;">
-                                <li>웹 서버에 파일 업로드</li>
-                                <li>로컬 웹 서버 실행 (Live Server 확장 등)</li>
-                                <li>브라우저 CORS 보안 해제</li>
-                            </ol>
-                            <p>현재 기본 데이터를 표시합니다.</p>
+                            <p>기본 데이터를 표시합니다.</p>
                         </div>
                     `;
                     setTimeout(() => {
                         loading.style.display = 'none';
                         loadDefaultContactData();
-                    }, 5000);
+                    }, 2000);
                     return;
                 }
                 
                 const proxy = proxies[proxyIndex];
                 const url = proxy + encodeURIComponent(CONTACT_SHEET_URL);
                 
-                console.log(`프록시 ${proxyIndex + 1} 시도:`, url);
+                console.log(`프록시 ${proxyIndex + 1} 시도:`, proxy);
                 
-                fetch(url)
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/csv',
+                    }
+                })
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP ${response.status}`);
@@ -529,14 +562,20 @@
                         return response.text();
                     })
                     .then(data => {
-                        console.log('Raw CSV data:', data.substring(0, 500) + '...');
+                        console.log('✓ CSV 데이터 로드 성공');
+                        console.log('Raw CSV data:', data.substring(0, 300) + '...');
                         const rows = parseCSV(data);
                         console.log('Parsed contact rows:', rows);
-                        displayContactData(rows);
-                        loading.style.display = 'none';
+                        
+                        if (rows.length > 0) {
+                            displayContactData(rows);
+                            loading.style.display = 'none';
+                        } else {
+                            throw new Error('CSV 데이터가 비어있습니다');
+                        }
                     })
                     .catch(error => {
-                        console.error(`프록시 ${proxyIndex + 1} 실패:`, error);
+                        console.warn(`프록시 ${proxyIndex + 1} 실패:`, error.message);
                         proxyIndex++;
                         tryNextProxy();
                     });
@@ -547,12 +586,25 @@
         
         // 논문 데이터 로드
         function loadPublicationData() {
-            if (!PUBLICATION_SHEET_URL) return;
+            // 이미 로드되었으면 중복 로드 방지
+            if (publicationDataLoaded) {
+                console.log('Publication 데이터는 이미 로드되었습니다.');
+                return;
+            }
             
+            if (!PUBLICATION_SHEET_URL) {
+                console.log('PUBLICATION_SHEET_URL이 비어있습니다.');
+                loadDefaultPublicationData();
+                publicationDataLoaded = true;
+                return;
+            }
+            
+            publicationDataLoaded = true;  // 로드 시작 시 플래그 설정
             const loading = document.getElementById('publicationLoading');
             const container = document.getElementById('publicationContainer');
             
             loading.style.display = 'block';
+            console.log('Publication 데이터 로드 시작...');
             
             // 여러 CORS 프록시 시도
             const proxies = [
@@ -566,26 +618,31 @@
             
             function tryNextProxy() {
                 if (proxyIndex >= proxies.length) {
-                    console.error('모든 프록시 실패');
+                    console.error('모든 프록시 실패 - 기본 데이터 사용');
                     loading.innerHTML = `
                         <div style="color: #e74c3c; text-align: center; padding: 20px;">
                             <h3>⚠️ 논문 데이터를 불러올 수 없습니다</h3>
-                            <p>현재 기본 데이터를 표시합니다.</p>
+                            <p>기본 데이터를 표시합니다.</p>
                         </div>
                     `;
                     setTimeout(() => {
                         loading.style.display = 'none';
                         loadDefaultPublicationData();
-                    }, 3000);
+                    }, 2000);
                     return;
                 }
                 
                 const proxy = proxies[proxyIndex];
                 const url = proxy + encodeURIComponent(PUBLICATION_SHEET_URL);
                 
-                console.log(`논문 프록시 ${proxyIndex + 1} 시도:`, url);
+                console.log(`논문 프록시 ${proxyIndex + 1} 시도:`, proxy);
                 
-                fetch(url)
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'text/csv',
+                    }
+                })
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP ${response.status}`);
@@ -593,14 +650,20 @@
                         return response.text();
                     })
                     .then(data => {
-                        console.log('Raw publication CSV data:', data.substring(0, 500) + '...');
+                        console.log('✓ 논문 CSV 데이터 로드 성공');
+                        console.log('Raw publication CSV data:', data.substring(0, 300) + '...');
                         const rows = parseCSV(data);
                         console.log('Parsed publication rows:', rows);
-                        displayPublicationData(rows);
-                        loading.style.display = 'none';
+                        
+                        if (rows.length > 0) {
+                            displayPublicationData(rows);
+                            loading.style.display = 'none';
+                        } else {
+                            throw new Error('CSV 데이터가 비어있습니다');
+                        }
                     })
                     .catch(error => {
-                        console.error(`논문 프록시 ${proxyIndex + 1} 실패:`, error);
+                        console.warn(`논문 프록시 ${proxyIndex + 1} 실패:`, error.message);
                         proxyIndex++;
                         tryNextProxy();
                     });
